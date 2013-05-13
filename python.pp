@@ -68,7 +68,7 @@ define source_install($tarball, $tmpdir, $flags) {
 
 class python {
   
-  define install ($pref="/usr/local", $tmpdir = "/tmp/tmpPython$version",$pipversion = "1.1", $executable_name = "python", $from_source=true) {
+  define install ($pref="/usr/local", $tmpdir = "/tmp/tmpPython$version", $executable_name = "python", $from_source=true) {
     if ($name =~ /^(\d)\.(\d)\.(\d)/) {
         $short_version = "$1.$2"
         $vesrion = $name
