@@ -20,6 +20,14 @@ pref - path prefix where python should be installed (default /usr/local)
 
 from_source - if true then install from sources (downloaded automaticly), false - install from ubuntu package
 
+####Example
+
+If you want to compile python 2.7.3 from sources and install it to /opt/local 
+
+        python::install {"2.7.3": 
+            pref => "/opt/local",
+        }
+
 ###python::configure
 
 Configures python to be ready for creating virtual environments and installing new packages, namely downloads and installs
@@ -67,10 +75,10 @@ libraries - space separated list of libraries names
 ####Example
 
 If you want to create virtualenv with path /home/user/.virtualenvs/django15 with Django 1.5 and IPython 0.13 installed using python 
-/usr/opt/bin/python3.2 then you can write
+/opt/local/bin/python3.2 then you can write
 
         python::virtualenv {"/home/user/.virtualenvs/django15":
-            prefix => "/usr/opt",
+            prefix => "/opt/local",
             short_version => "3.2",
             libraries => "django==1.5 ipython==0.13",
         }
