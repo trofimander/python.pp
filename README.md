@@ -47,6 +47,7 @@ short_version - 2 first digit of version of python whose corresponding pip shuol
 ####Example
 
 If you want to install package Django 1.5 to /usr/opt/python2.6 then you write 
+
     python:pip{"installing django":
       prefix=>"/usr/opt/python2.6",
       short_version=>2.6,
