@@ -34,7 +34,7 @@ pref - path prefix where python should be installed (default /usr/local)
 pipversion - version of PIP (default 1.1)
 
 
-###python:pip
+###python::pip
 
 Installs package to selected interpreter/virtualenv.
 
@@ -48,10 +48,34 @@ short_version - 2 first digit of version of python whose corresponding pip shuol
 
 If you want to install package Django 1.5 to /usr/opt/python2.6 then you write 
 
-    python:pip{"installing django":
+    python::pip{"installing django":
       prefix=>"/usr/opt/python2.6",
-      short_version=>2.6,
+      short_version=>"2.6",
+      command=>"django==1.5",
     }
+
+###python::virtualenv
+
+Creates virtualenv with the defined set of packages
+
+####Argument
+
+prefix - base python location prefix
+short_version - 2 first digits of python version 
+libraries - space separated list of libraries names
+
+####Example
+
+If you want to create virtualenv with path /home/user/.virtualenvs/django15 with Django 1.5 and IPython 0.13 installed using python 
+/usr/local/bin/python3.2 then you can write
+
+        python::virtualenv {"/home/user/.virtualenvs/django15":
+            short_version => "3.2",
+            libraries => "django==1.5 ipython==0.13",
+        }
+
+        
+
 
 
 
