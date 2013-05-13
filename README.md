@@ -67,9 +67,10 @@ libraries - space separated list of libraries names
 ####Example
 
 If you want to create virtualenv with path /home/user/.virtualenvs/django15 with Django 1.5 and IPython 0.13 installed using python 
-/usr/local/bin/python3.2 then you can write
+/usr/opt/bin/python3.2 then you can write
 
         python::virtualenv {"/home/user/.virtualenvs/django15":
+            prefix => "/usr/opt",
             short_version => "3.2",
             libraries => "django==1.5 ipython==0.13",
         }
