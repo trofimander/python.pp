@@ -40,7 +40,17 @@ Installs package to selected interpreter/virtualenv.
 
 ####Arguments
 
-prefix - path prefix where desired interpreter is located
+prefix - path prefix where desired interpreter is located (default /usr/local)
+
+short_version - 2 first digit of version of python whose corresponding pip shuold be used
+
+####Example
+
+If you want to install package Django 1.5 to /usr/opt/python2.6 then you write 
+    python:pip{"installing django":
+      prefix=>"/usr/opt/python2.6",
+      short_version=>2.6,
+    }
 
 
 
