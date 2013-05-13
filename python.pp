@@ -172,7 +172,7 @@ class python {
       }
     }
 
-  define pip($prefix="/usr/local", $version = undef, $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
+  define pip($prefix="/usr/local", $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
     case $ensure {
       present: {
         if ($install_scripts) {
@@ -201,7 +201,7 @@ class python {
     }
   }
 
-  define easy_install($prefix="/usr/local", $version = undef, $ensure, $executable="python", $short_version="2.6", $command=undef, $tmpdir="/tmp") {
+  define easy_install($prefix="/usr/local", $ensure, $executable="python", $short_version="2.6", $command=undef, $tmpdir="/tmp") {
     case $ensure {
       present: {
 	    exec { "retrieve-ez_setup-$name":
