@@ -8,64 +8,6 @@ sudo apt-get install libc6-dev
 sudo apt-get install libsqlite3-dev
 sudo apt-get install tk-dev
 
-class pre($prefix="/usr/local") {
-	package {["build-essential",
-	          "libncursesw5-dev",
-	          "libncurses5-dev",
-                  "libreadline-gplv2-dev",
-                  "libssl-dev",
-                  "libsasl2-dev",
-                  "libgdbm-dev",
-                  "libbz2-dev",
-                  "libc6-dev",
-                  "libsqlite3-dev",
-                  "tk-dev",
-                  "zlibc",
-                  "zlib1g",
-                  "zlib1g-dev"]:
-		ensure => installed,
-		provider => apt
-	}
-
-	file {"$prefix":
-		ensure => directory
-	}
-}
-
-define source_install($tarball, $tmpdir, $flags) {
-  file { "$tmpdir": ensure => directory }
-
-  exec { "retrieve-$name":
-
-    command => "wget $tarball",
-    cwd => "$tmpdir",
-    before => Exec["extract-$name"],
-    notify => Exec["extract-$name"],
-    creates => "$tmpdir/$name.tgz",
-  }
-
-  exec { "extract-$name":
-    command => "tar -zxf $name.tgz",
-    cwd => $tmpdir,
-    creates => "$tmpdir/$name/README",
-    require => Exec["retrieve-$name"],
-    before => Exec["configure-$name"],
-  }
-
-  exec { "configure-$name":
-    cwd => "$tmpdir/$name",
-    command => "$tmpdir/$name/configure $flags --prefix=$prefix",
-    require => Exec["extract-$name"],
-    before => Exec["make-$name"],
-  }
-
-  exec { "make-$name":
-    cwd => "$tmpdir/$name",
-    command => "make && make install",
-    require => Exec["configure-$name"],
-  }
-}
-
 class python {
   
   define install ($pref="/usr/local", $tmpdir = "/tmp/tmpPython$version", $executable_name = "python", $from_source=true) {
@@ -82,27 +24,14 @@ class python {
     Exec { path => "/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin" }
     include pre
 
-    if ($from_source) {
-
-        $flags = "LDFLAGS=-L/usr/lib/x86_64-linux-gnu"
-
-    	source_install { "Python-$version":
-      		tarball => "http://python.org/ftp/python/$version/Python-$version.tgz",
-      		tmpdir => $tmpdir,
-      		flags => $flags,
-      		require => Class["pre"],
-    }
-	$prefix = $pref
-    } else {
-	$prefix = "/usr/local"
-	package { "python$short_version":
+    $prefix = "/usr/local"
+    package { "python$short_version":
 		ensure => installed,
 		provider => apt,
-	}
     }
   }
 
-  define configure ($pref="/usr/local", $pipversion = "1.1", $executable_name = "python") {
+  define configure ($pref="/usr", $pipversion = "1.1", $executable_name = "python") {
       if ($name =~ /^Python-(\d)\.(\d)/) {
               $short_version = "$1.$2"
           } else {
@@ -172,18 +101,18 @@ class python {
       }
     }
 
-  define pip($prefix="/usr/local", $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
+  define pip($prefix="/usr", $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
     case $ensure {
       present: {
         if ($install_scripts) {
           exec { "pip-uninstall-$name":
-                command => "$prefix/bin/pip-$short_version uninstall -y $command",
+                command => "$prefix/bin/pip$short_version uninstall -y $command",
                 timeout => "-1",
                 returns => [0, 1],
                 before => Exec["pip-install-$name"],
           }
           exec { "pip-install-$name":
-          	      command => "$prefix/bin/pip-$short_version install --install-option=\"--install-scripts=$install_scripts\" $command",
+          	      command => "$prefix/bin/pip$short_version install --install-option=\"--install-scripts=$install_scripts\" $command",
           	      timeout => "-1",
           	      logoutput => true,
           	      require => Exec["pip-uninstall-$name"],
@@ -191,7 +120,7 @@ class python {
         } else
         {
           exec { "pip-install-$name":
-                                command => "$prefix/bin/pip-$short_version install $command",
+                                command => "$prefix/bin/pip$short_version install $command",
                                 timeout => "-1",
                                 logoutput => true,
           }
@@ -201,7 +130,7 @@ class python {
     }
   }
 
-  define easy_install($prefix="/usr/local", $ensure, $executable="python", $short_version="2.6", $command=undef, $tmpdir="/tmp") {
+  define easy_install($prefix="/usr", $ensure, $executable="python", $short_version="2.6", $command=undef, $tmpdir="/tmp") {
     case $ensure {
       present: {
 	    exec { "retrieve-ez_setup-$name":
@@ -226,7 +155,7 @@ class python {
     }
   }
 
-  define virtualenv($prefix="/usr/local", $short_version="2.6", $libraries = undef) {
+  define virtualenv($prefix="/usr", $short_version="2.6", $libraries = undef) {
     exec {$name:
       command => "$prefix/bin/virtualenv-$short_version --no-site-packages $name",
       creates => "$name/bin/python",
