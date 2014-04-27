@@ -6,6 +6,10 @@ Puppet scripts for installing Python and configuring virtual environments
 
 ##Usage
 
+Before usage to install Pythons from Ubuntu repository add Dead Snakes repo to sources.list:
+sudo add-apt-repository ppa:fkrull/deadsnakes
+
+
 See examples for details.
 
 
