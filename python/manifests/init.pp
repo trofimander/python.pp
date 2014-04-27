@@ -45,14 +45,6 @@ class python {
       }
     }
   }
-
-  define install_jython() {
-    package { "jython":
-      ensure => installed,
-      provider => apt,
-    }
-  }
-
   
   define install ($pref="/usr/local", $tmpdir = "/tmp/tmpPython$version", $executable_name = "python", $from_source=false) {
     if ($name =~ /^(\d)\.(\d)\.(\d)/) {
