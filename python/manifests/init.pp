@@ -8,7 +8,6 @@ sudo apt-get install libc6-dev
 sudo apt-get install libsqlite3-dev
 sudo apt-get install tk-dev
 
-
 class python {
   define source_install($tarball, $tmpdir, $flags) {
     case $ensure {
@@ -153,25 +152,30 @@ class python {
   define pip($prefix="/usr", $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
     case $ensure {
       present: {
+        if (file_exists("$prefix/bin/pip$short_version")) {
+          $pip_file="$prefix/bin/pip$short_version"
+        } else {
+          $pip_file="$prefix/bin/pip-$short_version"
+        }
         if ($install_scripts) {
           exec { "pip-uninstall-$name":
-                command => "$prefix/bin/pip$short_version uninstall -y $command",
+                command => "$pip_file uninstall -y $command",
                 timeout => "-1",
                 returns => [0, 1],
                 before => Exec["pip-install-$name"],
           }
           exec { "pip-install-$name":
-          	      command => "$prefix/bin/pip$short_version install --install-option=\"--install-scripts=$install_scripts\" $command",
-          	      timeout => "-1",
-          	      logoutput => true,
-          	      require => Exec["pip-uninstall-$name"],
-                  }
+                command => "$pip_file install --install-option=\"--install-scripts=$install_scripts\" $command",
+                timeout => "-1",
+                logoutput => true,
+                require => Exec["pip-uninstall-$name"],
+          }
         } else
         {
           exec { "pip-install-$name":
-                                command => "$prefix/bin/pip$short_version install $command",
-                                timeout => "-1",
-                                logoutput => true,
+                command => "$pip_file install $command",
+                timeout => "-1",
+                logoutput => true,
           }
         }
 
