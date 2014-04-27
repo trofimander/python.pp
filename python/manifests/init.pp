@@ -46,6 +46,13 @@ class python {
     }
   }
 
+  define install_jython() {
+    package { "jython":
+      ensure => installed,
+      provider => apt,
+    }
+  }
+
   
   define install ($pref="/usr/local", $tmpdir = "/tmp/tmpPython$version", $executable_name = "python", $from_source=false) {
     if ($name =~ /^(\d)\.(\d)\.(\d)/) {
@@ -79,7 +86,7 @@ class python {
     }
   }
 
-  define configure ($pref="/usr", $pipversion="1.5.4", $venv_version=undef, $executable_name="python") {
+  define configure ($pref="/usr", $pipversion="1.1", $executable_name="python") {
       if ($name =~ /^Python-(\d)\.(\d)/) {
               $short_version = "$1.$2"
           } else {
@@ -139,11 +146,16 @@ class python {
         before => Pip["virtualenv-$short_version"]
       }
 
+      if ($short_version == "2.5") {
+        $venv_version="virtualenv==1.9.1" #The latest virtualenv supporting Python 2.5
+      } else {
+        $venv_version="virtualenv"
+      }
       pip { "virtualenv-$short_version":
         prefix => $pref,
         ensure => present,
         short_version => $short_version,
-        command => "virtualenv",
+        command => $venv_version,
         install_scripts => "$pref/bin",
         require => Exec["install-pip-$short_version"],
       }
