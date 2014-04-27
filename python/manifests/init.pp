@@ -26,12 +26,12 @@ class python {
 
     $prefix = "/usr/local"
     package { "python$short_version":
-		ensure => installed,
-		provider => apt,
+      ensure => installed,
+      provider => apt,
     }
   }
 
-  define configure ($pref="/usr", $pipversion = "1.1", $executable_name = "python") {
+  define configure ($pref="/usr", $pipversion="1.5.4", $venv_version=undef, $executable_name="python") {
       if ($name =~ /^Python-(\d)\.(\d)/) {
               $short_version = "$1.$2"
           } else {
@@ -92,12 +92,12 @@ class python {
       }
 
       pip { "virtualenv-$short_version":
-  	prefix => $pref,
-  	ensure => present,
-  	short_version => $short_version,
-  	command => "virtualenv",
-  	install_scripts => "$pref/bin",
-  	require => Exec["install-pip-$short_version"],
+        prefix => $pref,
+        ensure => present,
+        short_version => $short_version,
+        command => "virtualenv",
+        install_scripts => "$pref/bin",
+        require => Exec["install-pip-$short_version"],
       }
     }
 
@@ -133,25 +133,25 @@ class python {
   define easy_install($prefix="/usr", $ensure, $executable="python", $short_version="2.6", $command=undef, $tmpdir="/tmp") {
     case $ensure {
       present: {
-	    exec { "retrieve-ez_setup-$name":
-  		    command => "/usr/bin/wget http://peak.telecommunity.com/dist/ez_setup.py",
-		    #command => "wget http://python-distribute.org/distribute_setup.py",
-		    cwd  => $tmpdir,
-		    logoutput => true,
-		    creates => "$tmpdir/ez_setup.py",
-	    }
-	    exec { "ez_setup-$name":
-		    command => "$prefix/bin/$executable $tmpdir/ez_setup.py",
-		    creates => "$prefix/bin/easy_install",
-		    require => Exec["retrieve-ez_setup-$name"],
-	    }
-            exec { "easy_install-$name":
-            	    command => "$prefix/bin/easy_install $command",
-                    timeout => "-1",
-                    logoutput => true,
-	 	    require => Exec["ez_setup-$name"],
-            }
-      }
+        exec { "retrieve-ez_setup-$name":
+            command => "/usr/bin/wget http://peak.telecommunity.com/dist/ez_setup.py",
+          #command => "wget http://python-distribute.org/distribute_setup.py",
+          cwd  => $tmpdir,
+          logoutput => true,
+          creates => "$tmpdir/ez_setup.py",
+        }
+        exec { "ez_setup-$name":
+          command => "$prefix/bin/$executable $tmpdir/ez_setup.py",
+          creates => "$prefix/bin/easy_install",
+          require => Exec["retrieve-ez_setup-$name"],
+        }
+              exec { "easy_install-$name":
+                    command => "$prefix/bin/easy_install $command",
+                      timeout => "-1",
+                      logoutput => true,
+          require => Exec["ez_setup-$name"],
+              }
+        }
     }
   }
 
@@ -164,12 +164,12 @@ class python {
 
     if $libraries {
        pip {"virtualenv in $name":
-	        prefix => $name,
-        	short_version => $short_version,
-	        ensure => present,
-        	require => Exec[$name],
-		command => $libraries
-	}
+            prefix => $name,
+            short_version => $short_version,
+            ensure => present,
+            require => Exec[$name],
+            command => $libraries
+       }
     }
   }
 }
