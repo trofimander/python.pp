@@ -52,6 +52,7 @@ class python {
     } else {
         fail("name be a version in format X.X.X for example 2.7.3")
     }
+    $setuptools_version="11.3.1"
 
 
     $binary="$executable_name$short_version"
@@ -84,7 +85,7 @@ class python {
           } else {
               fail("name be a short version in format X.X for example 2.7")
        }
-
+      $setuptools_version="11.3.1"
        $tmpdir = "/tmp/tmpPython$short_version"
 
 
@@ -95,8 +96,8 @@ class python {
 
       file { "$tmpdir": ensure => directory }
 
-      exec { "retrieve-distribute-$short_version":
-        command => "wget http://python-distribute.org/distribute_setup.py",
+      exec { "retrieve-setuptools-$short_version":
+        command => "wget https://pypi.python.org/packages/source/s/setuptools/setuptools-$setuptools_version.tar.gz && tar -zxf setuptools-$setuptools_version.tar.gz",
         cwd => $tmpdir,
         require => Class["pre"],
       }
@@ -116,14 +117,19 @@ class python {
         require => Exec["retrieve-pip-$short_version"],
       }
 
-      exec { "install-distribute-$short_version":
-        command =>"$pref/bin/$binary $tmpdir/distribute_setup.py",
+    if ($short_version == "2.5") {
+      # No direct setuptools is available
+      $setuptools_command = "wget https://bitbucket.org/pypa/setuptools/raw/bootstrap-py24/ez_setup.py && $pref/bin/$binary ez_setup.py"
+    } else {
+      $setuptools_command = "$pref/bin/$binary $tmpdir/setuptools-$setuptools_version/setup.py install"
+    }
+      exec { "install-setuptools-$short_version":
+        command => $setuptools_command,
         cwd => $tmpdir,
         require => [
-                    Exec["retrieve-distribute-$short_version"],
+                    Exec["retrieve-setuptools-$short_version"],
                     ],
         before => Exec["install-pip-$short_version"],
-        creates => "$pref/bin/pip-$short_version",
         logoutput => true,
       }
 
@@ -133,7 +139,7 @@ class python {
         creates => "$pref/bin/pip-$short_version",
         require => [
                     Exec["extract-pip-$short_version"],
-                    Exec["install-distribute-$short_version"]
+                    Exec["install-setuptools-$short_version"]
                     ],
         before => Pip["virtualenv-$short_version"]
       }
@@ -156,10 +162,10 @@ class python {
   define pip($prefix="/usr", $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
     case $ensure {
       present: {
-        if (file_exists("$prefix/bin/pip$short_version")) {
-          $pip_file="$prefix/bin/pip$short_version"
-        } else {
+        if (file_exists("$prefix/bin/pip-$short_version")) {
           $pip_file="$prefix/bin/pip-$short_version"
+        } else {
+          $pip_file="$prefix/bin/pip$short_version"
         }
         if ($install_scripts) {
           exec { "pip-uninstall-$name":
