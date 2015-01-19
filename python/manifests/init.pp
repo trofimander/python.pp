@@ -162,7 +162,7 @@ class python {
   define pip($prefix="/usr", $ensure, $short_version="2.6", $command=undef, $install_scripts=undef) {
     case $ensure {
       present: {
-        if (file_exists("$prefix/bin/pip-$short_version")) {
+        if (file_exists("$prefix/bin/pip-$short_version") == 1) {
           $pip_file="$prefix/bin/pip-$short_version"
         } else {
           $pip_file="$prefix/bin/pip$short_version"
